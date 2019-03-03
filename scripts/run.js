@@ -1,9 +1,25 @@
-#!/bin/env node
+#!/usr/bin/env node
+const path = require('path')
+const fs = require('fs')
+const minimist = require('minimist')
 
-const args = process.argv.splice(2)
+const options = minimist(process.argv.slice(2))
+
+console.log(options);
+
+const args = process.argv.slice(2)
+const requiredMemory = options.memory ? parseInt(options.memory) : 50
+const _64KB = 64 * 1024
+const REQUIRED_MB = 1024 * 1024 * requiredMemory // 50 MB
+const REQUIRED_PAGES = Math.ceil(REQUIRED_MB / _64KB)
+const memory = new WebAssembly.Memory({
+  initial: REQUIRED_PAGES,
+  maximum: REQUIRED_PAGES,
+  shared: true,
+})
 
 async function initModule() {
-  const wasmPath = path.resolve(__dirname, '../build', `${args[0]}.wasm`)
+  const wasmPath = path.resolve(__dirname, '../build', `${options._[0]}.wasm`)
   const buffer = fs.readFileSync(wasmPath)
   const results = await WebAssembly.instantiate(buffer, {
     env: {
@@ -19,7 +35,7 @@ async function initModule() {
 }
 
 initModule().then(exports => {
-  if(args[1] && exports[args[1]]) {
-    exports[args[1]]()
+  if (options._[1] && exports[options._[1]]) {
+    exports[options._[1]]()
   }
 })
