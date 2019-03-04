@@ -5,7 +5,7 @@
   "author": "Nidin Vinayakan <01@01alchemist.com>",
   "license": "MIT",
   "scripts": {
-    "build": "./scripts/build.sh",
+    "build": "./scripts/build.js",
     "start": "node --experimental-wasm-simd --experimental-wasm-threads ./scripts/run.js -- "
   },
   "devDependencies": {

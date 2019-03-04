@@ -5,8 +5,6 @@ const minimist = require('minimist')
 
 const options = minimist(process.argv.slice(2))
 
-console.log(options);
-
 const args = process.argv.slice(2)
 const requiredMemory = options.memory ? parseInt(options.memory) : 50
 const _64KB = 64 * 1024
@@ -21,21 +19,26 @@ const memory = new WebAssembly.Memory({
 async function initModule() {
   const wasmPath = path.resolve(__dirname, '../build', `${options._[0]}.wasm`)
   const buffer = fs.readFileSync(wasmPath)
-  const results = await WebAssembly.instantiate(buffer, {
-    env: {
-      memory,
-      abort: (filename, line, column) => {
-        throw Error(
-          `abort called at ${filename ? filename + ':' : ''}${line}:${column}`
-        )
+  try {
+    const results = await WebAssembly.instantiate(buffer, {
+      env: {
+        memory,
+        abort: (filename, line, column) => {
+          throw Error(
+            `abort called at ${filename ? filename + ':' : ''}${line}:${column}`
+          )
+        },
       },
-    },
-  })
-  return results.instance.exports
+    })
+    return results.instance.exports
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 initModule().then(exports => {
   if (options._[1] && exports[options._[1]]) {
-    exports[options._[1]]()
+    console.log('Calling:', exports[options._[1]])
+    console.log(exports[options._[1]]())
   }
 })
