@@ -9,6 +9,6 @@
     "start": "node --experimental-wasm-simd --experimental-wasm-threads ./scripts/run.js -- "
   },
   "devDependencies": {
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.6"
   }
 }
